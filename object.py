@@ -12,6 +12,7 @@ class Object():
         self._height = height
         self._color = color
         self._screen = screen
+        self.update()
 
     def __del__(self):
         self._color = config.bkgd

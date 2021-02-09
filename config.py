@@ -13,3 +13,8 @@ brick = {
         4: Back.BLUE
     }
 }
+
+paddle = {
+    "dim": (18, 1),
+    "color": Back.MAGENTA
+}
