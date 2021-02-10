@@ -38,8 +38,11 @@ class Window():
         # Show cursor
         print("\x1b[?25h")
 
+    def clear(self):
+        self._content = [[self._bkgd for i in range(
+            self._ncols)] for j in range(self._nlines)]
+
     def addch(self, y: int, x: int, ch: str):
-        # print(x, y)
         self._content[y][x] = ch
 
     def draw(self):
@@ -47,6 +50,8 @@ class Window():
         for y, line in enumerate(self._content):
             for x, char in enumerate(line):
                 output += f"{Cursor.POS(x+1, y+1)}{char}"
-            output += "\n"
 
         sys.stdout.write(output)
+
+    def get_screen_size(self):
+        return (self._nlines, self._ncols)

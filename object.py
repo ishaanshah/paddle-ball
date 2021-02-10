@@ -22,7 +22,14 @@ class Object():
         for i in range(self._width):
             for j in range(self._height):
                 x, y = self._x + i, self._y + j
-                self._screen.addch(y, x, f"{self._color} ")
+                self._screen.addch(int(y), int(x), f"{self._color} ")
 
     def get_bound_box(self) -> List[Tuple[int]]:
-        pass
+        result = []
+        result.append(self._x, self._y)  # Top left
+        result.append(self._x + self._width, self._y)  # Top right
+        result.append(self._x + self._width,
+                      self._y + self._height)  # Bottom right
+        result.append(self._x, self._y + self._height)  # Bottom left
+
+        return result
