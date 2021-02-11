@@ -1,6 +1,4 @@
 import sys
-import termios
-import tty
 
 from colorama import Cursor
 
@@ -14,29 +12,6 @@ class Window():
 
         # Initialise screen of with 'bkgd'
         self._content = [[bkgd for i in range(ncols)] for j in range(nlines)]
-
-        fd = sys.stdin
-        # Hide cursor
-        print("\x1b[?25l")
-
-        # Store old config to restore later
-        self._old_attr = termios.tcgetattr(fd.fileno())
-
-        # Disable echo
-        new = termios.tcgetattr(fd.fileno())
-        new[3] = new[3] & ~termios.ECHO
-        termios.tcsetattr(fd.fileno(), termios.TCSADRAIN, new)
-
-        # Set terminal to raw mode
-        tty.setcbreak(fd, when=termios.TCSADRAIN)
-
-    def __del__(self):
-        # Reset terminal config
-        termios.tcsetattr(sys.stdin.fileno(),
-                          termios.TCSADRAIN, self._old_attr)
-
-        # Show cursor
-        print("\x1b[?25h")
 
     def clear(self):
         self._content = [[self._bkgd for i in range(

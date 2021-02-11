@@ -10,6 +10,7 @@ from window import Window
 from paddle import Paddle
 from brick import Brick
 from ball import Ball
+from kbhit import KBHit
 
 
 def main():
@@ -28,6 +29,9 @@ def main():
 
     # Initialise screen
     screen = Window(ncols, nlines, f"{config.bkgd} ")
+
+    # Initialise keyboard
+    kb = KBHit()
 
     # Create and draw bricks
     brick_count = ncols // (config.brick["dim"][0]+5)
@@ -69,6 +73,11 @@ def main():
     last_update = 0
     while True:
         if (time.time() - last_update > config.tick_interval):
+            if kb.kbhit():
+                c = kb.getch()
+                if ord(c) == 27:
+                    break
+
             hit = False
             to_delete = None
             for y, layer in enumerate(bricks):
@@ -79,7 +88,8 @@ def main():
                             ball.y + ball.height > brick.y):
 
                         # Check top or bottom collision
-                        if brick.y >= ball.y + ball.height - 1 or brick.y + brick.height - 1 <= ball.y:
+                        if (brick.y >= ball.y + ball.height - 1 or
+                                brick.y + brick.height - 1 <= ball.y):
                             ball.speed[1] = -ball.speed[1]
                         else:
                             ball.speed[0] = -ball.speed[0]
@@ -119,7 +129,6 @@ def main():
 
             screen.draw()
 
-    sys.stdin.read(1)
     f.close()
 
 
