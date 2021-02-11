@@ -17,11 +17,13 @@ brick = {
 }
 
 paddle = {
-    "dim": (20, 1),
-    "color": Back.MAGENTA
+    "dim": (25, 1),
+    "color": Back.MAGENTA,
+    "speed": 2
 }
 
 ball = {
     "dim": (2, 1),
-    "color": Back.CYAN
+    "color": Back.CYAN,
+    "speed": [0.3, -0.3],
 }

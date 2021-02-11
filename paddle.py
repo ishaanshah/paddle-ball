@@ -12,4 +12,9 @@ class Paddle(Object):
         )
 
     def move(self, direction: int):
-        pass
+        _, ncols = self._screen.get_screen_size()
+
+        # Check if paddle is at any of the edges
+        new_x = self.x + (direction*config.paddle["speed"])
+        if int(new_x) >= 0 and int(new_x) + self.width <= ncols:
+            self.x = new_x

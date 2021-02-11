@@ -13,6 +13,9 @@ class Brick(Object):
         self._strength = strength
 
     def hit_brick(self, ball_strength: int):
+        if self._strength == 4:
+            return
+
         self._strength -= 1
 
         if self._strength == 0:

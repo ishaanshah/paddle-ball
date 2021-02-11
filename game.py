@@ -66,28 +66,52 @@ def main():
                     nlines-3, screen)
 
     # Create and draw the ball
-    ball = Ball((ncols-1) // 2 - 1, nlines-4, [0.25, -0.25], 1, screen)
+    ball = Ball((ncols-1) // 2 - 1, nlines-4, config.ball["speed"], 1, screen)
 
     f = open("log", "w")
 
     last_update = 0
     while True:
         if (time.time() - last_update > config.tick_interval):
+            direction = 0
             if kb.kbhit():
                 c = kb.getch()
                 if ord(c) == 27:
                     break
 
+                if c == 'a':
+                    direction = -1
+                elif c == 'd':
+                    direction = 1
+
             hit = False
+            # Check if ball hit the paddle
+            if (ball.y + ball.height > paddle.y and
+                    ball.x + ball.width > paddle.x and
+                    ball.x < paddle.x + paddle.width):
+                speed_sq = ball.speed[0]**2 + ball.speed[1]**2
+                dvx = min(abs(paddle.x - ball.x),
+                          abs(paddle.x + paddle.width - ball.x)) / (paddle.width*2)
+                dvx = 1 - dvx
+                ball.speed[0] = (
+                    ball.speed[0] / abs(ball.speed[0])) * dvx * (speed_sq**0.5)
+                ball.speed[1] = -((speed_sq - ball.speed[0]**2)**0.5)
+                ball.revert_pos()
+
+                hit = True
+
+            # Check if ball hit any of the brick
             to_delete = None
             for y, layer in enumerate(bricks):
+                if hit:
+                    break
                 for x, brick in enumerate(layer):
                     if (ball.x < brick.x + brick.width and
                             ball.x + ball.width > brick.x and
                             ball.y < brick.y + brick.height and
                             ball.y + ball.height > brick.y):
 
-                        # Check top or bottom collision
+                        # Get direction of collision
                         if (brick.y >= ball.y + ball.height - 1 or
                                 brick.y + brick.height - 1 <= ball.y):
                             ball.speed[1] = -ball.speed[1]
@@ -100,11 +124,8 @@ def main():
 
                         hit = True
                         break
-                if hit:
-                    break
 
             if to_delete:
-                print(to_delete, file=f)
                 del bricks[to_delete[0]][to_delete[1]]
 
             if hit:
@@ -120,10 +141,11 @@ def main():
                 for brick in layer:
                     brick.update()
 
-            # Update paddle
+            # Move and update paddle
+            paddle.move(direction)
             paddle.update()
 
-            # Move and Update ball
+            # Move and update ball
             ball.move(bricks)
             ball.update()
 
