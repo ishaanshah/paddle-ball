@@ -13,4 +13,11 @@ class Brick(Object):
         self._strength = strength
 
     def hit_brick(self, ball_strength: int):
-        pass
+        self._strength -= 1
+
+        if self._strength == 0:
+            return True
+
+        self.set_color(config.brick["color"][self._strength])
+        self.update()
+        return False

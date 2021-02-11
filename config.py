@@ -7,7 +7,7 @@ bkgd = Back.BLACK
 tick_interval = 0.01
 
 brick = {
-    "dim": (10, 1),
+    "dim": (12, 2),
     "color": {
         1: Back.GREEN,
         2: Back.YELLOW,
@@ -17,7 +17,7 @@ brick = {
 }
 
 paddle = {
-    "dim": (18, 1),
+    "dim": (20, 1),
     "color": Back.MAGENTA
 }
 

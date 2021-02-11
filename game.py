@@ -3,6 +3,7 @@ import time
 import sys
 import config
 import random
+import math
 
 from colorama import init, Fore, Back, Cursor
 from window import Window
@@ -29,7 +30,7 @@ def main():
     screen = Window(ncols, nlines, f"{config.bkgd} ")
 
     # Create and draw bricks
-    brick_count = ncols // (config.brick["dim"][0]+3)
+    brick_count = ncols // (config.brick["dim"][0]+5)
     bricks = []
     for i in range(6):
         layer = []
@@ -44,14 +45,14 @@ def main():
 
             if i % 2 == 0:
                 layer.append(Brick(
-                    j*(config.brick["dim"][0]+3),
-                    i*3, strength, screen
+                    j*(config.brick["dim"][0]+5),
+                    i*5, strength, screen
                 ))
             else:
                 dx = ncols % brick_count
                 layer.append(Brick(
-                    j*(config.brick["dim"][0]+3)+dx+3,
-                    i*3, strength, screen
+                    j*(config.brick["dim"][0]+5)+dx+5,
+                    i*5, strength, screen
                 ))
 
         bricks.append(layer)
@@ -61,11 +62,44 @@ def main():
                     nlines-3, screen)
 
     # Create and draw the ball
-    ball = Ball((ncols-1) // 2 - 1, nlines-4, [0.4, -0.4], 1, screen)
+    ball = Ball((ncols-1) // 2 - 1, nlines-4, [0.25, -0.25], 1, screen)
+
+    f = open("log", "w")
 
     last_update = 0
     while True:
         if (time.time() - last_update > config.tick_interval):
+            hit = False
+            to_delete = None
+            for y, layer in enumerate(bricks):
+                for x, brick in enumerate(layer):
+                    if (ball.x < brick.x + brick.width and
+                            ball.x + ball.width > brick.x and
+                            ball.y < brick.y + brick.height and
+                            ball.y + ball.height > brick.y):
+
+                        # Check top or bottom collision
+                        if brick.y >= ball.y + ball.height - 1 or brick.y + brick.height - 1 <= ball.y:
+                            ball.speed[1] = -ball.speed[1]
+                        else:
+                            ball.speed[0] = -ball.speed[0]
+
+                        ball.revert_pos()
+                        if brick.hit_brick(1):
+                            to_delete = (y, x)
+
+                        hit = True
+                        break
+                if hit:
+                    break
+
+            if to_delete:
+                print(to_delete, file=f)
+                del bricks[to_delete[0]][to_delete[1]]
+
+            if hit:
+                continue
+
             last_update = time.time()
 
             # Clear screen
@@ -80,12 +114,13 @@ def main():
             paddle.update()
 
             # Move and Update ball
-            ball.move()
+            ball.move(bricks)
             ball.update()
 
             screen.draw()
 
     sys.stdin.read(1)
+    f.close()
 
 
 if __name__ == "__main__":
