@@ -66,7 +66,8 @@ def main():
                     nlines-3, screen)
 
     # Create and draw the ball
-    ball = Ball((ncols-1) // 2 - 1, nlines-4, config.ball["speed"], 1, screen)
+    balls = [Ball((ncols-1) // 2 - 1, nlines-4,
+                  config.ball["speed"], 1, screen)]
 
     f = open("log", "w")
 
@@ -84,70 +85,35 @@ def main():
                 elif c == 'd':
                     direction = 1
 
-            hit = False
-            # Check if ball hit the paddle
-            if (ball.y + ball.height > paddle.y and
-                    ball.x + ball.width > paddle.x and
-                    ball.x < paddle.x + paddle.width):
-                speed_sq = ball.speed[0]**2 + ball.speed[1]**2
-                dvx = min(abs(paddle.x - ball.x),
-                          abs(paddle.x + paddle.width - ball.x)) / (paddle.width*2)
-                dvx = 1 - dvx
-                ball.speed[0] = (
-                    ball.speed[0] / abs(ball.speed[0])) * dvx * (speed_sq**0.5)
-                ball.speed[1] = -((speed_sq - ball.speed[0]**2)**0.5)
-                ball.revert_pos()
-
-                hit = True
-
-            # Check if ball hit any of the brick
-            to_delete = None
-            for y, layer in enumerate(bricks):
-                if hit:
-                    break
-                for x, brick in enumerate(layer):
-                    if (ball.x < brick.x + brick.width and
-                            ball.x + ball.width > brick.x and
-                            ball.y < brick.y + brick.height and
-                            ball.y + ball.height > brick.y):
-
-                        # Get direction of collision
-                        if (brick.y >= ball.y + ball.height - 1 or
-                                brick.y + brick.height - 1 <= ball.y):
-                            ball.speed[1] = -ball.speed[1]
-                        else:
-                            ball.speed[0] = -ball.speed[0]
-
-                        ball.revert_pos()
-                        if brick.hit_brick(1):
-                            to_delete = (y, x)
-
-                        hit = True
-                        break
-
-            if to_delete:
-                del bricks[to_delete[0]][to_delete[1]]
-
-            if hit:
-                continue
-
             last_update = time.time()
 
             # Clear screen
             screen.clear()
+
+            # Move the paddle
+            paddle.move(direction)
+
+            # Move the ball
+            to_delete = []
+            for idx, ball in enumerate(balls):
+                if not ball.move(bricks, paddle):
+                    to_delete.append(idx)
+
+            for ball_idx in to_delete:
+                # Delete ball if it hit the bottom
+                del balls[ball_idx]
 
             # Update bricks
             for layer in bricks:
                 for brick in layer:
                     brick.update()
 
-            # Move and update paddle
-            paddle.move(direction)
+            # Update paddle
             paddle.update()
 
-            # Move and update ball
-            ball.move(bricks)
-            ball.update()
+            # Update ball
+            for ball in balls:
+                ball.update()
 
             screen.draw()
 

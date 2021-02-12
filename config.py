@@ -27,3 +27,9 @@ ball = {
     "color": Back.CYAN,
     "speed": [0.3, -0.3],
 }
+
+powerup = {
+    "dim": (4, 1),
+    "color": Back.WHITE,
+    "speed": 1.5
+}

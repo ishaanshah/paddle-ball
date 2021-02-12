@@ -17,10 +17,6 @@ class Object():
     def __repr__(self):
         return repr(f"{self.x} {self.y} {self.width} {self.height}")
 
-    def __del__(self):
-        self._color = config.bkgd
-        self.update()
-
     def set_color(self, color: str):
         self._color = color
 

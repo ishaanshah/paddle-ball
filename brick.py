@@ -22,5 +22,4 @@ class Brick(Object):
             return True
 
         self.set_color(config.brick["color"][self._strength])
-        self.update()
         return False
