@@ -43,6 +43,7 @@ class Ball(Object):
         hit = False
         # Check if ball hit the paddle
         if (int(self.y + self.height) > paddle.y and
+                self.y < paddle.y + paddle.height and
                 self.x + self.width > paddle.x and
                 self.x < paddle.x + paddle.width):
             speed_sq = self.speed[0]**2 + self.speed[1]**2
@@ -53,7 +54,7 @@ class Ball(Object):
                 self.speed[0] / abs(self.speed[0])) * dvx * (speed_sq**0.5)
             self.speed[1] = -((speed_sq - self.speed[0]**2)**0.5)
 
-            # Revert posision
+            # Revert position
             self.x = self.old_x
             self.y = self.old_y
 
@@ -77,7 +78,7 @@ class Ball(Object):
                     else:
                         self.speed[0] = -self.speed[0]
 
-                    # Revert posision
+                    # Revert position
                     self.x = self.old_x
                     self.y = self.old_y
                     if brick.hit_brick(1):

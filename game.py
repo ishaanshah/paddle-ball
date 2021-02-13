@@ -11,6 +11,7 @@ from paddle import Paddle
 from brick import Brick
 from ball import Ball
 from kbhit import KBHit
+from powerup import ExpandPaddle
 
 
 def main():
@@ -36,6 +37,7 @@ def main():
     # Create and draw bricks
     brick_count = ncols // (config.brick["dim"][0]+5)
     bricks = []
+    powerups = []
     for i in range(6):
         layer = []
 
@@ -47,16 +49,19 @@ def main():
                 strength = 4
                 unbrkbl_brk_cnt += 1
 
+            powerup = ExpandPaddle(screen)
+            powerups.append(powerup)
+            strength = 1
             if i % 2 == 0:
                 layer.append(Brick(
                     j*(config.brick["dim"][0]+5),
-                    i*5, strength, screen
+                    i*5, strength, screen, powerup
                 ))
             else:
                 dx = ncols % brick_count
                 layer.append(Brick(
                     j*(config.brick["dim"][0]+5)+dx+5,
-                    i*5, strength, screen
+                    i*5, strength, screen, powerup
                 ))
 
         bricks.append(layer)
@@ -93,15 +98,12 @@ def main():
             # Move the paddle
             paddle.move(direction)
 
-            # Move the ball
-            to_delete = []
-            for idx, ball in enumerate(balls):
-                if not ball.move(bricks, paddle):
-                    to_delete.append(idx)
+            # Move the powerups
+            powerups = [powerup for powerup in powerups
+                        if powerup.move(paddle)]
 
-            for ball_idx in to_delete:
-                # Delete ball if it hit the bottom
-                del balls[ball_idx]
+            # Move the ball
+            balls = [ball for ball in balls if ball.move(bricks, paddle)]
 
             # Update bricks
             for layer in bricks:
@@ -110,6 +112,10 @@ def main():
 
             # Update paddle
             paddle.update()
+
+            # Update powerups
+            for powerup in powerups:
+                powerup.update()
 
             # Update ball
             for ball in balls:
