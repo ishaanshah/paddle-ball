@@ -17,7 +17,7 @@ brick = {
 }
 
 paddle = {
-    "dim": (25, 1),
+    "dim": (30, 1),
     "color": Back.MAGENTA,
     "speed": 2
 }
@@ -29,7 +29,7 @@ ball = {
 }
 
 powerup = {
-    "dim": (4, 1),
+    "dim": (2, 1),
     "color": Back.WHITE,
     "speed": 1.5
 }
