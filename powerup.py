@@ -1,6 +1,7 @@
 import config
 
 from object import Object
+from ball import Ball
 
 
 class PowerUp(Object):
@@ -81,3 +82,18 @@ class GrabPaddle(PowerUp):
     def action(self, balls):
         for ball in balls:
             ball.powerup = "grab"
+
+
+class MultiplyBall(PowerUp):
+    type = "ball"
+
+    def action(self, balls):
+        to_append = []
+        for ball in balls:
+            to_append.append(Ball(ball.x, ball.y, [-ball.speed[0], ball.speed[1]],
+                                  1, ball._screen))
+
+        for ball in to_append:
+            ball.paused = False
+
+        balls += to_append

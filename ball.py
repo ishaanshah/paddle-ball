@@ -57,8 +57,8 @@ class Ball(Object):
             dvx = min(abs(paddle.x - pos_x),
                       abs(paddle.x + paddle.width - pos_x)) / (paddle.width*2)
             dvx = 1 - dvx
-            self.speed[0] = (
-                self.speed[0] / abs(self.speed[0])) * dvx * (speed_sq**0.5)
+            self.speed[0] = (self.speed[0] / abs(self.speed[0])) * \
+                dvx * (speed_sq**0.5)
             self.speed[1] = -((abs(speed_sq - self.speed[0]**2))**0.5)
 
             # Revert position

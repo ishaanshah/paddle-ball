@@ -1,17 +1,19 @@
-import shutil
-import time
-import sys
-import config
-import random
 import math
+import random
+import shutil
+import sys
+import time
 
-from colorama import init, Fore, Back, Cursor
-from window import Window
-from paddle import Paddle
-from brick import Brick
+from colorama import Back, Cursor, Fore, init
+
+import config
 from ball import Ball
+from brick import Brick
 from kbhit import KBHit
-from powerup import ExpandPaddle, ShrinkPaddle, FastBall, ThruBall, GrabPaddle
+from paddle import Paddle
+from powerup import (ExpandPaddle, FastBall, GrabPaddle, MultiplyBall,
+                     ShrinkPaddle, ThruBall)
+from window import Window
 
 
 def main():
@@ -49,9 +51,14 @@ def main():
                 strength = 4
                 unbrkbl_brk_cnt += 1
 
-            powerup_type = random.choice([GrabPaddle])
-            powerup = powerup_type(screen)
-            powerups.append(powerup)
+            # Make 30% of breackable bricks have a powerup
+            powerup = None
+            if strength < 4 and random.randrange(100) < 30:
+                powerup_type = random.choice([ExpandPaddle, FastBall, GrabPaddle,
+                                              MultiplyBall, ShrinkPaddle, ThruBall])
+                powerup = powerup_type(screen)
+                powerups.append(powerup)
+
             strength = 1
             if i % 2 == 0:
                 layer.append(Brick(
