@@ -7,10 +7,10 @@ from ball import Ball
 class PowerUp(Object):
     type = "base"
 
-    def __init__(self, screen):
+    def __init__(self, color, screen):
         super().__init__(
             0, 0, *config.powerup["dim"],
-            config.powerup["color"], screen, False
+            color, screen, False
         )
         self.speed = config.powerup["speed"]
 
@@ -43,6 +43,9 @@ class PowerUp(Object):
 class ExpandPaddle(PowerUp):
     type = "paddle"
 
+    def __init__(self, screen):
+        super().__init__(config.powerup["color"]["expand"], screen)
+
     def action(self, paddle):
         paddle.powerup = "expand"
         paddle.set_width(int(config.paddle["dim"][0] * 1.5))
@@ -51,6 +54,9 @@ class ExpandPaddle(PowerUp):
 class ShrinkPaddle(PowerUp):
     type = "paddle"
 
+    def __init__(self, screen):
+        super().__init__(config.powerup["color"]["shrink"], screen)
+
     def action(self, paddle):
         paddle.powerup = "shrink"
         paddle.set_width(int(config.paddle["dim"][0] * 0.7))
@@ -58,6 +64,9 @@ class ShrinkPaddle(PowerUp):
 
 class FastBall(PowerUp):
     type = "ball"
+
+    def __init__(self, screen):
+        super().__init__(config.powerup["color"]["fast"], screen)
 
     def action(self, balls):
         for ball in balls:
@@ -71,6 +80,9 @@ class FastBall(PowerUp):
 class ThruBall(PowerUp):
     type = "ball"
 
+    def __init__(self, screen):
+        super().__init__(config.powerup["color"]["thru"], screen)
+
     def action(self, balls):
         for ball in balls:
             ball.powerup = "thru"
@@ -78,6 +90,9 @@ class ThruBall(PowerUp):
 
 class GrabPaddle(PowerUp):
     type = "ball"
+
+    def __init__(self, screen):
+        super().__init__(config.powerup["color"]["grab"], screen)
 
     def action(self, balls):
         for ball in balls:
@@ -87,6 +102,9 @@ class GrabPaddle(PowerUp):
 class MultiplyBall(PowerUp):
     type = "ball"
 
+    def __init__(self, screen):
+        super().__init__(config.powerup["color"]["multiply"], screen)
+
     def action(self, balls):
         to_append = []
         for ball in balls:
@@ -95,5 +113,6 @@ class MultiplyBall(PowerUp):
 
         for ball in to_append:
             ball.paused = False
+            ball.powerup = balls[0].powerup
 
-        balls += to_append
+        balls += to_append[:max(0, 8 - len(balls))]

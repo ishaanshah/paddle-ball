@@ -25,11 +25,19 @@ paddle = {
 ball = {
     "dim": (2, 1),
     "color": Back.CYAN,
-    "speed": [0.2, -0.2],
+    "speed": [0.15, -0.15],
 }
 
 powerup = {
     "dim": (2, 1),
-    "color": Back.WHITE,
+    "color": {
+        "shrink": Back.LIGHTRED_EX,
+        "expand": Back.LIGHTBLUE_EX,
+        "fast": Back.LIGHTMAGENTA_EX,
+        "multiply": Back.LIGHTYELLOW_EX,
+        "thru": Back.LIGHTWHITE_EX,
+        "grab": Back.LIGHTGREEN_EX
+    },
     "speed": 0.05
+
 }
