@@ -19,10 +19,15 @@ class Paddle(Object):
 
         self.width = new_width
 
-    def move(self, direction: int):
+    def move(self, direction: int, balls):
         _, ncols = self._screen.get_screen_size()
 
         # Check if paddle is at any of the edges
         new_x = self.x + (direction*config.paddle["speed"])
         if int(new_x) >= 0 and int(new_x) + self.width <= ncols:
             self.x = new_x
+
+            # Move paused balls along with paddle
+            for ball in balls:
+                if ball.paused:
+                    ball.x += direction*config.paddle["speed"]

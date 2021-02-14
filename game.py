@@ -11,7 +11,7 @@ from paddle import Paddle
 from brick import Brick
 from ball import Ball
 from kbhit import KBHit
-from powerup import ExpandPaddle, ShrinkPaddle, FastBall, ThruBall
+from powerup import ExpandPaddle, ShrinkPaddle, FastBall, ThruBall, GrabPaddle
 
 
 def main():
@@ -49,7 +49,7 @@ def main():
                 strength = 4
                 unbrkbl_brk_cnt += 1
 
-            powerup_type = random.choice([ThruBall])
+            powerup_type = random.choice([GrabPaddle])
             powerup = powerup_type(screen)
             powerups.append(powerup)
             strength = 1
@@ -72,7 +72,7 @@ def main():
                     nlines-3, screen)
 
     # Create and draw the ball
-    balls = [Ball(ncols // 2 - 1, nlines-8,
+    balls = [Ball(ncols // 2 - 1, nlines-4,
                   list(config.ball["speed"]), 1, screen)]
 
     last_update = 0
@@ -88,6 +88,10 @@ def main():
                     direction = -1
                 elif c == 'd':
                     direction = 1
+                elif c == ' ':
+                    # Activate balls
+                    for ball in balls:
+                        ball.paused = False
 
             last_update = time.time()
 
@@ -95,7 +99,7 @@ def main():
             screen.clear()
 
             # Move the paddle
-            paddle.move(direction)
+            paddle.move(direction, balls)
 
             # Move the powerups
             to_delete = []

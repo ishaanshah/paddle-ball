@@ -73,3 +73,11 @@ class ThruBall(PowerUp):
     def action(self, balls):
         for ball in balls:
             ball.powerup = "thru"
+
+
+class GrabPaddle(PowerUp):
+    type = "ball"
+
+    def action(self, balls):
+        for ball in balls:
+            ball.powerup = "grab"

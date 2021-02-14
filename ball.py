@@ -11,12 +11,16 @@ class Ball(Object):
             x, y, *config.ball["dim"],
             config.ball["color"], screen
         )
+        self.paused = True
         self.old_x = x
         self.old_y = y
         self.speed = speed
         self.powerup = None
 
     def move(self, bricks: list, paddle):
+        if self.paused:
+            return True
+
         nlines, ncols = self._screen.get_screen_size()
 
         # Check if x boundary has been crossed
@@ -55,11 +59,14 @@ class Ball(Object):
             dvx = 1 - dvx
             self.speed[0] = (
                 self.speed[0] / abs(self.speed[0])) * dvx * (speed_sq**0.5)
-            self.speed[1] = -((speed_sq - self.speed[0]**2)**0.5)
+            self.speed[1] = -((abs(speed_sq - self.speed[0]**2))**0.5)
 
             # Revert position
             self.x = self.old_x
             self.y = self.old_y
+
+            if self.powerup == "grab":
+                self.paused = True
 
             hit = True
 
