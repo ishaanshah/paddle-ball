@@ -11,7 +11,7 @@ from paddle import Paddle
 from brick import Brick
 from ball import Ball
 from kbhit import KBHit
-from powerup import ExpandPaddle, ShrinkPaddle
+from powerup import ExpandPaddle, ShrinkPaddle, FastBall
 
 
 def main():
@@ -49,7 +49,7 @@ def main():
                 strength = 4
                 unbrkbl_brk_cnt += 1
 
-            powerup_type = random.choice([ShrinkPaddle, ExpandPaddle])
+            powerup_type = random.choice([FastBall])
             powerup = powerup_type(screen)
             powerups.append(powerup)
             strength = 1
@@ -67,13 +67,15 @@ def main():
 
         bricks.append(layer)
 
+    bricks.append([Brick(10, nlines-9, 4, screen)])
+
     # Create and draw the paddle
     paddle = Paddle(((ncols-1) - config.paddle["dim"][0]) // 2,
                     nlines-3, screen)
 
     # Create and draw the ball
-    balls = [Ball((ncols-1) // 2 - 1, nlines-4,
-                  config.ball["speed"], 1, screen)]
+    balls = [Ball(ncols // 2 - 1, nlines-8,
+                  list(config.ball["speed"]), 1, screen)]
 
     last_update = 0
     while True:
@@ -98,8 +100,21 @@ def main():
             paddle.move(direction)
 
             # Move the powerups
-            powerups = [powerup for powerup in powerups
-                        if powerup.move(paddle, paddle)]
+            to_delete = []
+            for powerup in powerups:
+                object = None
+                if powerup.type == "paddle":
+                    object = paddle
+                elif powerup.type == "ball":
+                    object = balls
+
+                if not powerup.move(paddle, object):
+                    to_delete.append(powerup)
+
+            powerups = [
+                powerup for powerup in powerups
+                if powerup not in to_delete
+            ]
 
             # Move the ball
             balls = [ball for ball in balls if ball.move(bricks, paddle)]

@@ -10,7 +10,7 @@ class Paddle(Object):
             x, y, *config.paddle["dim"],
             config.paddle["color"], screen
         )
-        self.powerups = None
+        self.powerup = None
 
     def set_width(self, new_width: int):
         _, ncols = self._screen.get_screen_size()

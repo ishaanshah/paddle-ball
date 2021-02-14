@@ -40,15 +40,17 @@ class Ball(Object):
         if int(new_y) + self.height > nlines:
             return False
 
+        pos_x = int(self.x)
+        pos_y = int(self.y)
         hit = False
         # Check if ball hit the paddle
-        if (int(self.y + self.height) > paddle.y and
-                self.y < paddle.y + paddle.height and
-                self.x + self.width > paddle.x and
-                self.x < paddle.x + paddle.width):
+        if (pos_y + self.height > paddle.y and
+                pos_y < paddle.y + paddle.height and
+                pos_x + self.width > paddle.x and
+                pos_x < paddle.x + paddle.width):
             speed_sq = self.speed[0]**2 + self.speed[1]**2
-            dvx = min(abs(paddle.x - self.x),
-                      abs(paddle.x + paddle.width - self.x)) / (paddle.width*2)
+            dvx = min(abs(paddle.x - pos_x),
+                      abs(paddle.x + paddle.width - pos_x)) / (paddle.width*2)
             dvx = 1 - dvx
             self.speed[0] = (
                 self.speed[0] / abs(self.speed[0])) * dvx * (speed_sq**0.5)
@@ -66,14 +68,16 @@ class Ball(Object):
             if hit:
                 break
             for x, brick in enumerate(layer):
-                if (self.x < brick.x + brick.width and
-                        self.x + self.width > brick.x and
-                        self.y < brick.y + brick.height and
-                        int(self.y + self.height) > brick.y):
+                if (pos_x < brick.x + brick.width and
+                        pos_x + self.width > brick.x and
+                        pos_y < brick.y + brick.height and
+                        pos_y + self.height > brick.y):
 
                     # Get direction of collision
-                    if (brick.y >= int(self.y + self.height - 1) or
-                            brick.y + brick.height - 1 <= self.y):
+                    pos_x = self.old_x
+                    pos_y = self.old_y
+                    if (brick.y >= pos_y + self.height or
+                            brick.y + brick.height <= pos_y):
                         self.speed[1] = -self.speed[1]
                     else:
                         self.speed[0] = -self.speed[0]

@@ -14,8 +14,9 @@ class Brick(Object):
         self._powerup = powerup
 
         # Set powerup location
-        self._powerup.x = x + (config.brick["dim"][0] // 2)
-        self._powerup.y = y + config.brick["dim"][1] - self._powerup.height
+        if powerup:
+            self._powerup.x = x + (config.brick["dim"][0] // 2)
+            self._powerup.y = y + config.brick["dim"][1] - self._powerup.height
 
     def hit_brick(self, ball_strength: int):
         if self._strength == 4:

@@ -4,6 +4,8 @@ from object import Object
 
 
 class PowerUp(Object):
+    type = "base"
+
     def __init__(self, screen):
         super().__init__(
             0, 0, *config.powerup["dim"],
@@ -38,12 +40,28 @@ class PowerUp(Object):
 
 
 class ExpandPaddle(PowerUp):
+    type = "paddle"
+
     def action(self, paddle):
-        paddle.powerups = 'expand'
+        paddle.powerup = "expand"
         paddle.set_width(int(config.paddle["dim"][0] * 1.5))
 
 
 class ShrinkPaddle(PowerUp):
+    type = "paddle"
+
     def action(self, paddle):
-        paddle.powerups = 'shrink'
+        paddle.powerup = "shrink"
         paddle.set_width(int(config.paddle["dim"][0] * 0.7))
+
+
+class FastBall(PowerUp):
+    type = "ball"
+
+    def action(self, balls):
+        for ball in balls:
+            ball.powerup = "fast"
+            ball.speed[0] = (ball.speed[0] / abs(ball.speed[0])) * \
+                (abs(config.ball["speed"][0]) * 1.3)
+            ball.speed[1] = (ball.speed[1] / abs(ball.speed[1])) * \
+                (abs(config.ball["speed"][1]) * 1.3)
