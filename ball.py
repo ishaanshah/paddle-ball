@@ -14,6 +14,7 @@ class Ball(Object):
         self.old_x = x
         self.old_y = y
         self.speed = speed
+        self.powerup = None
 
     def move(self, bricks: list, paddle):
         nlines, ncols = self._screen.get_screen_size()
@@ -78,14 +79,16 @@ class Ball(Object):
                     pos_y = self.old_y
                     if (brick.y >= pos_y + self.height or
                             brick.y + brick.height <= pos_y):
-                        self.speed[1] = -self.speed[1]
+                        if not self.powerup == "thru":
+                            self.speed[1] = -self.speed[1]
                     else:
-                        self.speed[0] = -self.speed[0]
+                        if not self.powerup == "thru":
+                            self.speed[0] = -self.speed[0]
 
                     # Revert position
                     self.x = self.old_x
                     self.y = self.old_y
-                    if brick.hit_brick(1):
+                    if brick.hit_brick(self.powerup == "thru"):
                         to_delete = (y, x)
 
                     hit = True

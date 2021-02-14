@@ -18,11 +18,14 @@ class Brick(Object):
             self._powerup.x = x + (config.brick["dim"][0] // 2)
             self._powerup.y = y + config.brick["dim"][1] - self._powerup.height
 
-    def hit_brick(self, ball_strength: int):
+    def hit_brick(self, thru: bool):
         if self._strength == 4:
-            return
+            return thru
 
-        self._strength -= 1
+        if thru:
+            self._strength = 0
+        else:
+            self._strength -= 1
 
         if self._strength == 0:
             if self._powerup:

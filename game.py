@@ -11,7 +11,7 @@ from paddle import Paddle
 from brick import Brick
 from ball import Ball
 from kbhit import KBHit
-from powerup import ExpandPaddle, ShrinkPaddle, FastBall
+from powerup import ExpandPaddle, ShrinkPaddle, FastBall, ThruBall
 
 
 def main():
@@ -49,7 +49,7 @@ def main():
                 strength = 4
                 unbrkbl_brk_cnt += 1
 
-            powerup_type = random.choice([FastBall])
+            powerup_type = random.choice([ThruBall])
             powerup = powerup_type(screen)
             powerups.append(powerup)
             strength = 1
@@ -66,8 +66,6 @@ def main():
                 ))
 
         bricks.append(layer)
-
-    bricks.append([Brick(10, nlines-9, 4, screen)])
 
     # Create and draw the paddle
     paddle = Paddle(((ncols-1) - config.paddle["dim"][0]) // 2,

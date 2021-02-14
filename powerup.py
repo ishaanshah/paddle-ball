@@ -65,3 +65,11 @@ class FastBall(PowerUp):
                 (abs(config.ball["speed"][0]) * 1.3)
             ball.speed[1] = (ball.speed[1] / abs(ball.speed[1])) * \
                 (abs(config.ball["speed"][1]) * 1.3)
+
+
+class ThruBall(PowerUp):
+    type = "ball"
+
+    def action(self, balls):
+        for ball in balls:
+            ball.powerup = "thru"
