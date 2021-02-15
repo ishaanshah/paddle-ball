@@ -47,7 +47,7 @@ class ExpandPaddle(PowerUp):
         super().__init__(config.powerup["color"]["expand"], screen)
 
     def action(self, paddle):
-        paddle.powerup = "expand"
+        paddle.powerup = ["expand", config.powerup["duration"]]
         paddle.set_width(int(config.paddle["dim"][0] * 1.5))
 
 
@@ -58,7 +58,7 @@ class ShrinkPaddle(PowerUp):
         super().__init__(config.powerup["color"]["shrink"], screen)
 
     def action(self, paddle):
-        paddle.powerup = "shrink"
+        paddle.powerup = ["shrink", config.powerup["duration"]]
         paddle.set_width(int(config.paddle["dim"][0] * 0.7))
 
 
@@ -70,7 +70,7 @@ class FastBall(PowerUp):
 
     def action(self, balls):
         for ball in balls:
-            ball.powerup = "fast"
+            ball.powerup = ["fast", config.powerup["duration"]]
             ball.speed[0] = (ball.speed[0] / abs(ball.speed[0])) * \
                 (abs(config.ball["speed"][0]) * 1.3)
             ball.speed[1] = (ball.speed[1] / abs(ball.speed[1])) * \
@@ -85,7 +85,7 @@ class ThruBall(PowerUp):
 
     def action(self, balls):
         for ball in balls:
-            ball.powerup = "thru"
+            ball.powerup = ["thru", config.powerup["duration"]]
 
 
 class GrabPaddle(PowerUp):
@@ -96,7 +96,7 @@ class GrabPaddle(PowerUp):
 
     def action(self, balls):
         for ball in balls:
-            ball.powerup = "grab"
+            ball.powerup = ["grab", config.powerup["duration"]]
 
 
 class MultiplyBall(PowerUp):
@@ -113,6 +113,7 @@ class MultiplyBall(PowerUp):
 
         for ball in to_append:
             ball.paused = False
-            ball.powerup = balls[0].powerup
+            if balls[0].powerup:
+                ball.powerup = list(balls[0].powerup)
 
         balls += to_append[:max(0, 8 - len(balls))]

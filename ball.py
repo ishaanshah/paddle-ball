@@ -15,9 +15,18 @@ class Ball(Object):
         self.old_x = x
         self.old_y = y
         self.speed = speed
-        self.powerup = None
+        self.powerup = ["", 0]
 
     def move(self, bricks: list, paddle):
+        if self.powerup[0] != "":
+            self.powerup[1] -= 1
+            if self.powerup[1] < 0:
+                self.powerup = ["", 0]
+                self.speed[0] = self.speed[0] / \
+                    abs(self.speed[0]) * abs(config.ball["speed"][0])
+                self.speed[1] = self.speed[1] / \
+                    abs(self.speed[1]) * abs(config.ball["speed"][1])
+
         if self.paused:
             return True, 0
 
@@ -66,7 +75,7 @@ class Ball(Object):
             self.x = self.old_x
             self.y = self.old_y
 
-            if self.powerup == "grab":
+            if self.powerup[0] == "grab":
                 self.paused = True
 
             hit = True
@@ -87,16 +96,16 @@ class Ball(Object):
                     pos_y = self.old_y
                     if (brick.y >= pos_y + self.height or
                             brick.y + brick.height <= pos_y):
-                        if not self.powerup == "thru":
+                        if not self.powerup[0] == "thru":
                             self.speed[1] = -self.speed[1]
                     else:
-                        if not self.powerup == "thru":
+                        if not self.powerup[0] == "thru":
                             self.speed[0] = -self.speed[0]
 
                     # Revert position
                     self.x = self.old_x
                     self.y = self.old_y
-                    if brick.hit_brick(self.powerup == "thru"):
+                    if brick.hit_brick(self.powerup[0] == "thru"):
                         to_delete = (y, x)
                         score += 10
 

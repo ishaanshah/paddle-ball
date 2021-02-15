@@ -59,7 +59,6 @@ def main():
                 powerup = powerup_type(screen)
                 powerups.append(powerup)
 
-            strength = 1
             if i % 2 == 0:
                 layer.append(Brick(
                     j*(config.brick["dim"][0]+5),
@@ -85,6 +84,7 @@ def main():
     while lives:
         # Reset paddle location
         paddle.x = ((ncols-1) - config.paddle["dim"][0]) // 2
+        paddle.powerup = None
 
         # Create and draw the ball
         balls = [Ball(random.randrange(paddle.x, paddle.x+paddle.width), nlines-5,
