@@ -19,8 +19,9 @@ class Ball(Object):
 
     def move(self, bricks: list, paddle):
         if self.paused:
-            return True
+            return True, 0
 
+        score = 0
         nlines, ncols = self._screen.get_screen_size()
 
         # Check if x boundary has been crossed
@@ -43,7 +44,7 @@ class Ball(Object):
 
         # Check if bottom boundary is hit
         if int(new_y) + self.height > nlines:
-            return False
+            return False, 0
 
         pos_x = int(self.x)
         pos_y = int(self.y)
@@ -97,6 +98,7 @@ class Ball(Object):
                     self.y = self.old_y
                     if brick.hit_brick(self.powerup == "thru"):
                         to_delete = (y, x)
+                        score += 10
 
                     hit = True
                     break
@@ -104,4 +106,4 @@ class Ball(Object):
         if to_delete:
             del bricks[to_delete[0]][to_delete[1]]
 
-        return True
+        return True, score

@@ -31,7 +31,7 @@ def main():
     (ncols, nlines) = shutil.get_terminal_size()
 
     # Initialise screen
-    screen = Window(ncols, nlines, f"{config.bkgd} ")
+    screen = Window(0, 1, ncols, nlines-1, f"{config.bkgd} ")
 
     # Initialise keyboard
     kb = KBHit()
@@ -63,88 +63,112 @@ def main():
             if i % 2 == 0:
                 layer.append(Brick(
                     j*(config.brick["dim"][0]+5),
-                    i*5, strength, screen, powerup
+                    i*5 + 1, strength, screen, powerup
                 ))
             else:
                 dx = ncols % brick_count
                 layer.append(Brick(
                     j*(config.brick["dim"][0]+5)+dx+5,
-                    i*5, strength, screen, powerup
+                    i*5 + 1, strength, screen, powerup
                 ))
 
         bricks.append(layer)
 
     # Create and draw the paddle
     paddle = Paddle(((ncols-1) - config.paddle["dim"][0]) // 2,
-                    nlines-3, screen)
-
-    # Create and draw the ball
-    balls = [Ball(ncols // 2 - 1, nlines-4,
-                  list(config.ball["speed"]), 1, screen)]
+                    nlines-4, screen)
 
     last_update = 0
-    while True:
-        if (time.time() - last_update > config.tick_interval):
-            direction = 0
-            if kb.kbhit():
-                c = kb.getch()
-                if ord(c) == 27:
-                    break
+    start = time.time()
+    score = 0
+    lives = 3
+    while lives:
+        # Reset paddle location
+        paddle.x = ((ncols-1) - config.paddle["dim"][0]) // 2
 
-                if c == 'a':
-                    direction = -1
-                elif c == 'd':
-                    direction = 1
-                elif c == ' ':
-                    # Activate balls
-                    for ball in balls:
-                        ball.paused = False
+        # Create and draw the ball
+        balls = [Ball(random.randrange(paddle.x, paddle.x+paddle.width), nlines-5,
+                      list(config.ball["speed"]), 1, screen)]
+        while len(balls):
+            if (time.time() - last_update > config.tick_interval):
+                for i in range(ncols):
+                    print(f"{Cursor.POS(1+i, 1)}{Back.BLACK} ", end='')
 
-            last_update = time.time()
+                statusline = f"{Cursor.POS(1, 1)}Score: {score}   "
+                statusline += f"Time: {int(time.time() - start)}   "
+                statusline += f"Lives: {lives}"
+                print(statusline, end='')
 
-            # Clear screen
-            screen.clear()
+                direction = 0
+                if kb.kbhit():
+                    c = kb.getch()
+                    if ord(c) == 27:
+                        sys.exit(0)
 
-            # Move the paddle
-            paddle.move(direction, balls)
+                    if c == 'a':
+                        direction = -1
+                    elif c == 'd':
+                        direction = 1
+                    elif c == ' ':
+                        # Activate balls
+                        for ball in balls:
+                            ball.paused = False
 
-            # Move the powerups
-            to_delete = []
-            for powerup in powerups:
-                object = None
-                if powerup.type == "paddle":
-                    object = paddle
-                elif powerup.type == "ball":
-                    object = balls
+                last_update = time.time()
 
-                if not powerup.move(paddle, object):
-                    to_delete.append(powerup)
+                # Clear screen
+                screen.clear()
 
-            powerups = [
-                powerup for powerup in powerups
-                if powerup not in to_delete
-            ]
+                # Move the paddle
+                paddle.move(direction, balls)
 
-            # Move the ball
-            balls = [ball for ball in balls if ball.move(bricks, paddle)]
+                # Move the powerups
+                to_delete = []
+                for powerup in powerups:
+                    object = None
+                    if powerup.type == "paddle":
+                        object = paddle
+                    elif powerup.type == "ball":
+                        object = balls
 
-            # Update bricks
-            for layer in bricks:
-                for brick in layer:
-                    brick.update()
+                    if not powerup.move(paddle, object):
+                        to_delete.append(powerup)
 
-            # Update paddle
-            paddle.update()
+                powerups = [
+                    powerup for powerup in powerups
+                    if powerup not in to_delete
+                ]
 
-            # Update powerups
-            for powerup in powerups:
-                powerup.update()
+                # Move the ball
+                to_delete = []
+                for ball in balls:
+                    delete, d_score = ball.move(bricks, paddle)
+                    if not delete:
+                        to_delete.append(ball)
 
-            # Update ball
-            for ball in balls:
-                ball.update()
+                    score += d_score
 
-            screen.draw()
+                balls = [ball for ball in balls if ball not in to_delete]
+
+                # Update bricks
+                for layer in bricks:
+                    for brick in layer:
+                        brick.update()
+
+                # Update paddle
+                paddle.update()
+
+                # Update powerups
+                for powerup in powerups:
+                    powerup.update()
+
+                # Update ball
+                for ball in balls:
+                    ball.update()
+
+                screen.draw()
+
+        lives -= 1
 
 
 if __name__ == "__main__":
