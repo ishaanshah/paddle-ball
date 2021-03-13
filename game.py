@@ -161,6 +161,9 @@ def main():
                 for layer in bricks:
                     for brick in layer:
                         brick.rainbow(ticks)
+                        brick.move(ticks)
+                        if brick.y + brick.height > paddle.y:
+                            sys.exit()
                         brick.update()
 
                 # Update paddle

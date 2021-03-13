@@ -13,7 +13,8 @@ brick = {
         2: Back.YELLOW,
         3: Back.RED,
         4: Back.BLUE
-    }
+    },
+    "speed": 0.003
 }
 
 paddle = {

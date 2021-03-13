@@ -37,6 +37,10 @@ class Brick(Object):
         self.set_color(config.brick["color"][self._strength])
         return False
 
+    def move(self, tick):
+        if tick > 1500:
+            self.y += config.brick["speed"]
+
     def rainbow(self, tick):
         if self._rainbow and tick % 100 == 0:
             self._strength = (self._strength % 4) + 1
