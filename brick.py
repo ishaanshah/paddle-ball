@@ -5,13 +5,14 @@ from object import Object
 
 
 class Brick(Object):
-    def __init__(self, x: int, y: int, strength: int, screen, powerup=None):
+    def __init__(self, x: int, y: int, strength: int, screen, powerup=None, rainbow=False):
         super().__init__(
             x, y, *config.brick["dim"],
             config.brick["color"][strength], screen
         )
         self._strength = strength
         self._powerup = powerup
+        self._rainbow = rainbow
 
         # Set powerup location
         if powerup:
@@ -19,6 +20,7 @@ class Brick(Object):
             self._powerup.y = y + config.brick["dim"][1] - self._powerup.height
 
     def hit_brick(self, thru: bool):
+        self._rainbow = False
         if self._strength == 4:
             return thru
 
@@ -34,3 +36,8 @@ class Brick(Object):
 
         self.set_color(config.brick["color"][self._strength])
         return False
+
+    def rainbow(self, tick):
+        if self._rainbow and tick % 100 == 0:
+            self._strength = (self._strength % 4) + 1
+            self.set_color(config.brick["color"][self._strength])

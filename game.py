@@ -51,6 +51,11 @@ def main():
                 strength = 4
                 unbrkbl_brk_cnt += 1
 
+            # Make 20% of bricks rainbow
+            rainbow = False
+            if random.randrange(100) < 20 and strength < 4:
+                rainbow = True
+
             # Make 30% of breackable bricks have a powerup
             powerup = None
             if strength < 4 and random.randrange(100) < 30:
@@ -62,13 +67,13 @@ def main():
             if i % 2 == 0:
                 layer.append(Brick(
                     j*(config.brick["dim"][0]+5),
-                    i*5 + 1, strength, screen, powerup
+                    i*5 + 1, strength, screen, powerup, rainbow
                 ))
             else:
                 dx = ncols % brick_count
                 layer.append(Brick(
                     j*(config.brick["dim"][0]+5)+dx+5,
-                    i*5 + 1, strength, screen, powerup
+                    i*5 + 1, strength, screen, powerup, rainbow
                 ))
 
         bricks.append(layer)
@@ -89,8 +94,10 @@ def main():
         # Create and draw the ball
         balls = [Ball(random.randrange(paddle.x, paddle.x+paddle.width), nlines-5,
                       list(config.ball["speed"]), 1, screen)]
+        ticks = 0
         while len(balls):
             if (time.time() - last_update > config.tick_interval):
+                ticks += 1
                 for i in range(ncols):
                     print(f"{Cursor.POS(1+i, 1)}{Back.BLACK} ", end='')
 
@@ -153,6 +160,7 @@ def main():
                 # Update bricks
                 for layer in bricks:
                     for brick in layer:
+                        brick.rainbow(ticks)
                         brick.update()
 
                 # Update paddle
