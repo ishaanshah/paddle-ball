@@ -1,4 +1,5 @@
 import config
+import math
 
 from object import Object
 from ball import Ball
@@ -6,28 +7,52 @@ from ball import Ball
 
 class PowerUp(Object):
     type = "base"
+    start_tick = -1
 
     def __init__(self, color, screen):
         super().__init__(
             0, 0, *config.powerup["dim"],
             color, screen, False
         )
-        self.speed = config.powerup["speed"]
+        self.speed = [0, 0]
+        self.old_x = 0
+        self.old_y = 0
 
     def action(self, object):
         # What action should be performed by ther powerup
         # Override this method respective child classes
         pass
 
-    def move(self, paddle, object):
+    def move(self, paddle, object, tick):
         if self.active:
-            nlines, _ = self._screen.get_screen_size()
-            new_y = self.y + self.speed
+            nlines, ncols = self._screen.get_screen_size()
+            self.speed[1] += (-config.ball["speed"][1] - self.speed[1]) / \
+                config.powerup["gravity"]
 
+            # Check if x boundary has been crossed
+            new_x = self.x + self.speed[0]
+            if new_x >= 0 and int(new_x) + self.width < ncols:
+                if math.fabs(self.old_x - new_x) >= 1.0:
+                    self.old_x = int(self.x)
+                self.x = new_x
+            else:
+                self.speed[0] = -self.speed[0]
+
+            # Check if top boundary has been crossed
+            new_y = self.y + self.speed[1]
+            if new_y >= 0:
+                if math.fabs(self.old_y - new_y) >= 1.0:
+                    self.old_y = int(self.y)
+                self.y = new_y
+            else:
+                self.speed[1] = -self.speed[1]
+
+            # Check if bottom boundary is hit
             if int(new_y) + self.height > nlines:
                 return False
 
             self.y = new_y
+            self.x = new_x
 
             # Check if powerup hit the paddle
             if (int(self.y + self.height) > paddle.y and

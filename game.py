@@ -46,19 +46,23 @@ def main():
         unbrkbl_brk_cnt = 0
         for j in range(brick_count):
             # Make 10% of bricks unbreakable
-            strength = (i % 3) + 1
+            # TODO: CHange to correct thing
+            # strength = (i % 3) + 1
+            strength = 1
             if random.randrange(100) < 20 and unbrkbl_brk_cnt < brick_count // 2:
                 strength = 4
                 unbrkbl_brk_cnt += 1
 
             # Make 20% of bricks rainbow
             rainbow = False
-            if random.randrange(100) < 20 and strength < 4:
+            # TODO: change to 20
+            if random.randrange(100) < 0 and strength < 4:
                 rainbow = True
 
             # Make 30% of breackable bricks have a powerup
+            # TODO: Change to 30
             powerup = None
-            if strength < 4 and random.randrange(100) < 30:
+            if strength < 4 and random.randrange(100) < 100:
                 powerup_type = random.choice([ExpandPaddle, FastBall, GrabPaddle,
                                               MultiplyBall, ShrinkPaddle, ThruBall])
                 powerup = powerup_type(screen)
@@ -94,10 +98,10 @@ def main():
         # Create and draw the ball
         balls = [Ball(random.randrange(paddle.x, paddle.x+paddle.width), nlines-5,
                       list(config.ball["speed"]), 1, screen)]
-        ticks = 0
+        tick = 0
         while len(balls):
             if (time.time() - last_update > config.tick_interval):
-                ticks += 1
+                tick += 1
                 for i in range(ncols):
                     print(f"{Cursor.POS(1+i, 1)}{Back.BLACK} ", end='')
 
@@ -138,7 +142,7 @@ def main():
                     elif powerup.type == "ball":
                         object = balls
 
-                    if not powerup.move(paddle, object):
+                    if not powerup.move(paddle, object, tick):
                         to_delete.append(powerup)
 
                 powerups = [
@@ -160,8 +164,8 @@ def main():
                 # Update bricks
                 for layer in bricks:
                     for brick in layer:
-                        brick.rainbow(ticks)
-                        brick.move(ticks)
+                        brick.rainbow(tick)
+                        brick.move(tick)
                         if brick.y + brick.height > paddle.y:
                             sys.exit()
                         brick.update()

@@ -39,6 +39,6 @@ powerup = {
         "thru": Back.LIGHTWHITE_EX,
         "grab": Back.LIGHTGREEN_EX
     },
-    "speed": 0.05,
-    "duration": 500
+    "duration": 500,
+    "gravity": 70,
 }

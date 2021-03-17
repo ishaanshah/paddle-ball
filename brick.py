@@ -2,6 +2,7 @@ import config
 
 from colorama import Back
 from object import Object
+from typing import List
 
 
 class Brick(Object):
@@ -19,7 +20,7 @@ class Brick(Object):
             self._powerup.x = x + (config.brick["dim"][0] // 2)
             self._powerup.y = y + config.brick["dim"][1] - self._powerup.height
 
-    def hit_brick(self, thru: bool):
+    def hit_brick(self, thru: bool, ball_speed: List[int], tick: int):
         self._rainbow = False
         if self._strength == 4:
             return thru
@@ -31,7 +32,9 @@ class Brick(Object):
 
         if self._strength == 0:
             if self._powerup:
+                self._powerup.speed = ball_speed
                 self._powerup.active = True
+                self._powerup.start_tick = tick
             return True
 
         self.set_color(config.brick["color"][self._strength])

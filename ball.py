@@ -33,6 +33,8 @@ class Ball(Object):
         score = 0
         nlines, ncols = self._screen.get_screen_size()
 
+        old_speed = self.speed.copy()
+
         # Check if x boundary has been crossed
         new_x = self.x + self.speed[0]
         if new_x >= 0 and int(new_x) + self.width <= ncols:
@@ -105,7 +107,7 @@ class Ball(Object):
                     # Revert position
                     self.x = self.old_x
                     self.y = self.old_y
-                    if brick.hit_brick(self.powerup[0] == "thru"):
+                    if brick.hit_brick(self.powerup[0] == "thru", old_speed, 0):
                         to_delete = (y, x)
                         score += 10
 
