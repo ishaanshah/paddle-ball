@@ -50,3 +50,7 @@ bullet = {
     "speed": -0.15,
     "rate": 200
 }
+
+boss = {
+    "color": Back.RED
+}

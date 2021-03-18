@@ -13,6 +13,7 @@ from bullet import Bullet
 from kbhit import KBHit
 from paddle import Paddle
 from window import Window
+from boss import Boss
 
 # TODO: Fix paddle for shoot_paddle
 
@@ -48,12 +49,14 @@ def main():
     curr_level = 1
     while curr_level <= 3:
         # Create and draw bricks
+        boss = None
         if curr_level == 1:
             bricks, powerups = levels.level_one(screen)
         elif curr_level == 2:
             bricks, powerups = levels.level_two(screen)
         elif curr_level == 3:
-            bricks, powerups = levels.level_one(screen)
+            bricks, powerups = levels.level_three(screen)
+            boss = Boss(ncols // 2, 5, screen)
         else:
             sys.exit()
 
@@ -82,6 +85,13 @@ def main():
                     statusline += f"Time: {int(time.time() - start)}   "
                     statusline += f"Lives: {lives}   "
                     statusline += f"Shoot Paddle: {int(shoot_paddle[0] * config.tick_interval)}   "
+                    if boss:
+                        statusline += "Boss Health: ["
+                        for i in range(0, boss.health, 10):
+                            statusline += "•"
+                        for i in range(0, 100-boss.health, 10):
+                            statusline += " "
+                        statusline += "]"
                     print(statusline, end='')
 
                     last_update = time.time()
@@ -146,7 +156,7 @@ def main():
                     # Move the ball
                     to_delete = []
                     for ball in balls:
-                        delete, d_score = ball.move(bricks, paddle)
+                        delete, d_score = ball.move(bricks, paddle, boss)
                         if not delete:
                             to_delete.append(ball)
 
@@ -167,11 +177,17 @@ def main():
                         bullet for bullet in bullets if bullet not in to_delete
                     ]
 
+                    # Move the boss
+                    if boss:
+                        boss.move(paddle.x + paddle.width // 2)
+
                     # Update bricks
                     for layer in bricks:
                         for brick in layer:
                             brick.rainbow(tick)
-                            brick.move(tick)
+                            # Dont move bricks on boss level
+                            if curr_level < 3:
+                                brick.move(tick)
                             if brick.y + brick.height > paddle.y:
                                 sys.exit()
                             brick.update()
@@ -191,17 +207,22 @@ def main():
                     for bullet in bullets:
                         bullet.update()
 
+                    # Boss update
+                    if boss:
+                        boss.update()
+
                     screen.draw()
 
-                    # Check if all breackable bricks are broken
-                    change_level = True
-                    for layer in bricks:
-                        for brick in layer:
-                            if brick._strength != 4:
-                                change_level = False
+                    # Check if all breackable bricks are broken on non boss levels
+                    if curr_level < 3:
+                        change_level = True
+                        for layer in bricks:
+                            for brick in layer:
+                                if brick._strength != 4:
+                                    change_level = False
+                                    break
+                            if not change_level:
                                 break
-                        if not change_level:
-                            break
 
                     if change_level:
                         curr_level += 1

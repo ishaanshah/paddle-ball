@@ -17,7 +17,7 @@ class Ball(Object):
         self.speed = speed
         self.powerup = ["", 0]
 
-    def move(self, bricks: list, paddle):
+    def move(self, bricks: list, paddle, boss):
         if self.powerup[0] != "":
             self.powerup[1] -= 1
             if self.powerup[1] < 0:
@@ -116,5 +116,29 @@ class Ball(Object):
 
         if to_delete:
             del bricks[to_delete[0]][to_delete[1]]
+
+        # Check if ball hit boss
+        if boss and not hit:
+            if (pos_x < boss.x + boss.width and
+                    pos_x + self.width > boss.x and
+                    pos_y < boss.y + boss.height and
+                    pos_y + self.height > boss.y):
+
+                # Get direction of collision
+                pos_x = self.old_x
+                pos_y = self.old_y
+                if (boss.y >= pos_y + self.height or
+                        boss.y + boss.height <= pos_y):
+                    self.speed[1] = -self.speed[1]
+                else:
+                    self.speed[0] = -self.speed[0]
+
+                # Revert position
+                self.x = self.old_x
+                self.y = self.old_y
+                boss.hit_boss()
+                score += 10
+
+                hit = True
 
         return True, score
