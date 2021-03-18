@@ -14,6 +14,7 @@ from kbhit import KBHit
 from paddle import Paddle
 from window import Window
 from boss import Boss
+from bomb import Bomb
 
 # TODO: Fix paddle for shoot_paddle
 
@@ -60,6 +61,9 @@ def main():
         else:
             sys.exit()
 
+        if lives == 0:
+            break
+
         while lives:
             # Reset paddle location
             paddle.x = ((ncols-1) - config.paddle["dim"][0]) // 2
@@ -72,6 +76,9 @@ def main():
             # List to store bullets
             bullets = []
             shoot_paddle = [0]
+
+            # List to store bombs
+            bombs = []
 
             tick = 0
             while len(balls):
@@ -128,6 +135,11 @@ def main():
                                    paddle.y, config.bullet["speed"], screen)
                         )
 
+                    # Create bomb if needed
+                    if boss and tick % config.bomb["rate"] == 0:
+                        bombs.append(Bomb(boss.x + 5, boss.y + 3,
+                                          config.bomb["speed"], screen))
+
                     # Clear screen
                     screen.clear()
 
@@ -177,6 +189,23 @@ def main():
                         bullet for bullet in bullets if bullet not in to_delete
                     ]
 
+                    # Move the bombs
+                    to_delete = []
+                    lose_life = False
+                    for bomb in bombs:
+                        delete, lose_life = bomb.move(paddle)
+                        if not delete:
+                            to_delete.append(bomb)
+                        if lose_life:
+                            break
+
+                    if lose_life:
+                        break
+
+                    bombs = [
+                        bomb for bomb in bombs if bomb not in to_delete
+                    ]
+
                     # Move the boss
                     if boss:
                         boss.move(paddle.x + paddle.width // 2)
@@ -185,7 +214,7 @@ def main():
                     for layer in bricks:
                         for brick in layer:
                             brick.rainbow(tick)
-                            # Dont move bricks on boss level
+                            # Don't move bricks on boss level
                             if curr_level < 3:
                                 brick.move(tick)
                             if brick.y + brick.height > paddle.y:
@@ -207,6 +236,10 @@ def main():
                     for bullet in bullets:
                         bullet.update()
 
+                    # Update bombs
+                    for bomb in bombs:
+                        bomb.update()
+
                     # Boss update
                     if boss:
                         boss.update()
@@ -223,6 +256,9 @@ def main():
                                     break
                             if not change_level:
                                 break
+                    else:
+                        if boss.health <= 0:
+                            change_level = True
 
                     if change_level:
                         curr_level += 1

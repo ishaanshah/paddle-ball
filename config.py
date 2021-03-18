@@ -54,3 +54,10 @@ bullet = {
 boss = {
     "color": Back.RED
 }
+
+bomb = {
+    "color": Back.LIGHTRED_EX,
+    "speed": 0.15,
+    "rate": 500,
+    "dim": (1, 1)
+}
