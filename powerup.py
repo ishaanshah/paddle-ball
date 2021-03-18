@@ -87,6 +87,16 @@ class ShrinkPaddle(PowerUp):
         paddle.set_width(int(config.paddle["dim"][0] * 0.7))
 
 
+class ShootPaddle(PowerUp):
+    type = "diff"
+
+    def __init__(self, screen):
+        super().__init__(config.powerup["color"]["shoot"], screen)
+
+    def action(self, timer):
+        timer[0] = 1000
+
+
 class FastBall(PowerUp):
     type = "ball"
 

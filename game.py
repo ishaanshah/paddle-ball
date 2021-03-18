@@ -7,13 +7,14 @@ import time
 from colorama import Back, Cursor, Fore, init
 
 import config
+import levels
 from ball import Ball
-from brick import Brick
+from bullet import Bullet
 from kbhit import KBHit
 from paddle import Paddle
-from powerup import (ExpandPaddle, FastBall, GrabPaddle, MultiplyBall,
-                     ShrinkPaddle, ThruBall)
 from window import Window
+
+# TODO: Fix paddle for shoot_paddle
 
 
 def main():
@@ -36,52 +37,6 @@ def main():
     # Initialise keyboard
     kb = KBHit()
 
-    # Create and draw bricks
-    brick_count = ncols // (config.brick["dim"][0]+5)
-    bricks = []
-    powerups = []
-    for i in range(6):
-        layer = []
-
-        unbrkbl_brk_cnt = 0
-        for j in range(brick_count):
-            # Make 10% of bricks unbreakable
-            # TODO: CHange to correct thing
-            # strength = (i % 3) + 1
-            strength = 1
-            if random.randrange(100) < 20 and unbrkbl_brk_cnt < brick_count // 2:
-                strength = 4
-                unbrkbl_brk_cnt += 1
-
-            # Make 20% of bricks rainbow
-            rainbow = False
-            # TODO: change to 20
-            if random.randrange(100) < 0 and strength < 4:
-                rainbow = True
-
-            # Make 30% of breackable bricks have a powerup
-            # TODO: Change to 30
-            powerup = None
-            if strength < 4 and random.randrange(100) < 100:
-                powerup_type = random.choice([ExpandPaddle, FastBall, GrabPaddle,
-                                              MultiplyBall, ShrinkPaddle, ThruBall])
-                powerup = powerup_type(screen)
-                powerups.append(powerup)
-
-            if i % 2 == 0:
-                layer.append(Brick(
-                    j*(config.brick["dim"][0]+5),
-                    i*5 + 1, strength, screen, powerup, rainbow
-                ))
-            else:
-                dx = ncols % brick_count
-                layer.append(Brick(
-                    j*(config.brick["dim"][0]+5)+dx+5,
-                    i*5 + 1, strength, screen, powerup, rainbow
-                ))
-
-        bricks.append(layer)
-
     # Create and draw the paddle
     paddle = Paddle(((ncols-1) - config.paddle["dim"][0]) // 2,
                     nlines-4, screen)
@@ -90,100 +45,172 @@ def main():
     start = time.time()
     score = 0
     lives = 3
-    while lives:
-        # Reset paddle location
-        paddle.x = ((ncols-1) - config.paddle["dim"][0]) // 2
-        paddle.powerup = None
+    curr_level = 1
+    while curr_level <= 3:
+        # Create and draw bricks
+        if curr_level == 1:
+            bricks, powerups = levels.level_one(screen)
+        elif curr_level == 2:
+            bricks, powerups = levels.level_two(screen)
+        elif curr_level == 3:
+            bricks, powerups = levels.level_one(screen)
+        else:
+            sys.exit()
 
-        # Create and draw the ball
-        balls = [Ball(random.randrange(paddle.x, paddle.x+paddle.width), nlines-5,
-                      list(config.ball["speed"]), 1, screen)]
-        tick = 0
-        while len(balls):
-            if (time.time() - last_update > config.tick_interval):
-                tick += 1
-                for i in range(ncols):
-                    print(f"{Cursor.POS(1+i, 1)}{Back.BLACK} ", end='')
+        while lives:
+            # Reset paddle location
+            paddle.x = ((ncols-1) - config.paddle["dim"][0]) // 2
+            paddle.powerup = None
 
-                statusline = f"{Cursor.POS(1, 1)}Score: {score}   "
-                statusline += f"Time: {int(time.time() - start)}   "
-                statusline += f"Lives: {lives}"
-                print(statusline, end='')
+            # Create and draw the ball
+            balls = [Ball(random.randrange(paddle.x, paddle.x+paddle.width), nlines-5,
+                          list(config.ball["speed"]), 1, screen)]
 
-                direction = 0
-                if kb.kbhit():
-                    c = kb.getch()
-                    if ord(c) == 27:
-                        sys.exit(0)
+            # List to store bullets
+            bullets = []
+            shoot_paddle = [0]
 
-                    if c == 'a':
-                        direction = -1
-                    elif c == 'd':
-                        direction = 1
-                    elif c == ' ':
-                        # Activate balls
-                        for ball in balls:
-                            ball.paused = False
+            tick = 0
+            while len(balls):
+                if (time.time() - last_update > config.tick_interval):
+                    tick += 1
+                    for i in range(ncols):
+                        print(f"{Cursor.POS(1+i, 1)}{Back.BLACK} ", end='')
 
-                last_update = time.time()
+                    statusline = f"{Cursor.POS(1, 1)}Level: {curr_level}   "
+                    statusline += f"Score: {score}   "
+                    statusline += f"Time: {int(time.time() - start)}   "
+                    statusline += f"Lives: {lives}   "
+                    statusline += f"Shoot Paddle: {int(shoot_paddle[0] * config.tick_interval)}   "
+                    print(statusline, end='')
 
-                # Clear screen
-                screen.clear()
+                    last_update = time.time()
 
-                # Move the paddle
-                paddle.move(direction, balls)
+                    change_level = False
+                    direction = 0
+                    if kb.kbhit():
+                        c = kb.getch()
+                        if ord(c) == 27:
+                            sys.exit(0)
 
-                # Move the powerups
-                to_delete = []
-                for powerup in powerups:
-                    object = None
-                    if powerup.type == "paddle":
-                        object = paddle
-                    elif powerup.type == "ball":
-                        object = balls
+                        if c == 'a':
+                            direction = -1
+                        elif c == 'd':
+                            direction = 1
+                        elif c == ' ':
+                            # Activate balls
+                            for ball in balls:
+                                ball.paused = False
+                        elif c == '1' or c == '2' or c == '3':
+                            curr_level = int(c) if curr_level != 3 else 4
+                            change_level = True
+                            break
 
-                    if not powerup.move(paddle, object, tick):
-                        to_delete.append(powerup)
+                    # Create new bullets if needed
+                    shoot_paddle[0] = max(0, shoot_paddle[0]-1)
+                    if shoot_paddle[0] and shoot_paddle[0] % config.bullet["rate"] == 0:
+                        bullets.append(
+                            Bullet(max(paddle.x, 0), paddle.y,
+                                   config.bullet["speed"], screen)
+                        )
+                        bullets.append(
+                            Bullet(min(paddle.x + paddle.width, screen.get_screen_size()[1]-1),
+                                   paddle.y, config.bullet["speed"], screen)
+                        )
 
-                powerups = [
-                    powerup for powerup in powerups
-                    if powerup not in to_delete
-                ]
+                    # Clear screen
+                    screen.clear()
 
-                # Move the ball
-                to_delete = []
-                for ball in balls:
-                    delete, d_score = ball.move(bricks, paddle)
-                    if not delete:
-                        to_delete.append(ball)
+                    # Move the paddle
+                    paddle.move(direction, balls)
 
-                    score += d_score
+                    # Move the powerups
+                    to_delete = []
+                    for powerup in powerups:
+                        object = None
+                        if powerup.type == "paddle":
+                            object = paddle
+                        elif powerup.type == "ball":
+                            object = balls
+                        else:
+                            object = shoot_paddle
 
-                balls = [ball for ball in balls if ball not in to_delete]
+                        if not powerup.move(paddle, object, tick):
+                            to_delete.append(powerup)
 
-                # Update bricks
-                for layer in bricks:
-                    for brick in layer:
-                        brick.rainbow(tick)
-                        brick.move(tick)
-                        if brick.y + brick.height > paddle.y:
-                            sys.exit()
-                        brick.update()
+                    powerups = [
+                        powerup for powerup in powerups
+                        if powerup not in to_delete
+                    ]
 
-                # Update paddle
-                paddle.update()
+                    # Move the ball
+                    to_delete = []
+                    for ball in balls:
+                        delete, d_score = ball.move(bricks, paddle)
+                        if not delete:
+                            to_delete.append(ball)
 
-                # Update powerups
-                for powerup in powerups:
-                    powerup.update()
+                        score += d_score
 
-                # Update ball
-                for ball in balls:
-                    ball.update()
+                    balls = [ball for ball in balls if ball not in to_delete]
 
-                screen.draw()
+                    # Move the bullets
+                    to_delete = []
+                    for bullet in bullets:
+                        delete, d_score = bullet.move(bricks)
+                        if not delete:
+                            to_delete.append(bullet)
 
-        lives -= 1
+                        score += d_score
+
+                    bullets = [
+                        bullet for bullet in bullets if bullet not in to_delete
+                    ]
+
+                    # Update bricks
+                    for layer in bricks:
+                        for brick in layer:
+                            brick.rainbow(tick)
+                            brick.move(tick)
+                            if brick.y + brick.height > paddle.y:
+                                sys.exit()
+                            brick.update()
+
+                    # Update paddle
+                    paddle.update()
+
+                    # Update powerups
+                    for powerup in powerups:
+                        powerup.update()
+
+                    # Update ball
+                    for ball in balls:
+                        ball.update()
+
+                    # Update bullets
+                    for bullet in bullets:
+                        bullet.update()
+
+                    screen.draw()
+
+                    # Check if all breackable bricks are broken
+                    change_level = True
+                    for layer in bricks:
+                        for brick in layer:
+                            if brick._strength != 4:
+                                change_level = False
+                                break
+                        if not change_level:
+                            break
+
+                    if change_level:
+                        curr_level += 1
+                        break
+
+            if change_level:
+                break
+
+            lives -= 1
 
 
 if __name__ == "__main__":

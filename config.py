@@ -37,8 +37,16 @@ powerup = {
         "fast": Back.LIGHTMAGENTA_EX,
         "multiply": Back.LIGHTYELLOW_EX,
         "thru": Back.LIGHTWHITE_EX,
-        "grab": Back.LIGHTGREEN_EX
+        "grab": Back.LIGHTGREEN_EX,
+        "shoot": Back.LIGHTBLACK_EX
     },
     "duration": 500,
     "gravity": 70,
+}
+
+bullet = {
+    "dim": (1, 1),
+    "color": Back.WHITE,
+    "speed": -0.15,
+    "rate": 200
 }
