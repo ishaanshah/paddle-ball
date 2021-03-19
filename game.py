@@ -16,8 +16,7 @@ from window import Window
 from boss import Boss
 from bomb import Bomb
 from brick import Brick
-
-# TODO: Fix paddle for shoot_paddle
+from object import Object
 
 
 def main():
@@ -49,6 +48,9 @@ def main():
     score = 0
     lives = 3
     curr_level = 1
+
+    # List to store shooters
+    shooters = [None, None]
     while curr_level <= 3:
         # Create and draw bricks
         boss = None
@@ -141,6 +143,14 @@ def main():
                         bombs.append(Bomb(boss.x + 5, boss.y + 3,
                                           config.bomb["speed"], screen))
 
+                    # Create shooters if needed
+                    if shoot_paddle[0] and not shooters[0]:
+                        shooters[0] = Object(paddle.x, paddle.y-1, 1, 1,
+                                             config.paddle["color"], screen)
+                    if shoot_paddle[0] and not shooters[1]:
+                        shooters[1] = Object(paddle.x+paddle.width-1, paddle.y-1, 1, 1,
+                                             config.paddle["color"], screen)
+
                     # Create brick layer on boss level if health is 50
                     if boss and boss.health == 80 and not boss.done[0]:
                         bricks.append([])
@@ -197,6 +207,10 @@ def main():
 
                     balls = [ball for ball in balls if ball not in to_delete]
 
+                    # Delete shooters if powerup is over
+                    if shoot_paddle[0] == 0:
+                        shooters = [None, None]
+
                     # Move the bullets
                     to_delete = []
                     for bullet in bullets:
@@ -231,6 +245,12 @@ def main():
                     if boss:
                         boss.move(paddle.x + paddle.width // 2)
 
+                    # Move the shooter
+                    if shooters[0]:
+                        shooters[0].x = paddle.x
+                    if shooters[1]:
+                        shooters[1].x = paddle.x + paddle.width-1
+
                     # Update bricks
                     for layer in bricks:
                         for brick in layer:
@@ -244,6 +264,11 @@ def main():
 
                     # Update paddle
                     paddle.update()
+
+                    # Update shooters
+                    for shooter in shooters:
+                        if shooter:
+                            shooter.update()
 
                     # Update powerups
                     for powerup in powerups:
