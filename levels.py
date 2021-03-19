@@ -97,12 +97,12 @@ def level_three(screen):
     for i in range(3):
         bricks[0].append(
             Brick(i*(config.brick["dim"][0]+5),
-                  15, 4, screen))
+                  19, 4, screen))
 
     for i in range(3):
         start = ncols - config.brick["dim"][0]
         bricks[0].append(
             Brick(start - i*(config.brick["dim"][0]+5),
-                  15, 4, screen))
+                  19, 4, screen))
 
     return bricks, []

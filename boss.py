@@ -13,6 +13,7 @@ class Boss():
         self.mid_layer = Object(x-10, y, 20, 1, config.boss["color"], screen)
         self.bot_layer = Object(x-3, y+1, 6, 1, config.boss["color"], screen)
         self.health = 100
+        self.done = [False, False]
 
     def update(self):
         self.top_layer.update()

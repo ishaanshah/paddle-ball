@@ -15,6 +15,7 @@ from paddle import Paddle
 from window import Window
 from boss import Boss
 from bomb import Bomb
+from brick import Brick
 
 # TODO: Fix paddle for shoot_paddle
 
@@ -139,6 +140,26 @@ def main():
                     if boss and tick % config.bomb["rate"] == 0:
                         bombs.append(Bomb(boss.x + 5, boss.y + 3,
                                           config.bomb["speed"], screen))
+
+                    # Create brick layer on boss level if health is 50
+                    if boss and boss.health == 80 and not boss.done[0]:
+                        bricks.append([])
+                        brick_count = screen.get_screen_size()[1] // \
+                            (config.brick["dim"][0] + 5)
+                        for i in range(brick_count):
+                            bricks[1].append(Brick(i*(config.brick["dim"][0] + 5),
+                                                   9, 1, screen))
+                        boss.done[0] = True
+
+                    # Create brick layer on boss level if health is 20
+                    if boss and boss.health == 20 and not boss.done[1]:
+                        brick_count = screen.get_screen_size()[1] // \
+                            (config.brick["dim"][0] + 5)
+                        bricks.append([])
+                        for i in range(brick_count):
+                            bricks[2].append(Brick(i*(config.brick["dim"][0] + 5),
+                                                   13, 1, screen))
+                        boss.done[1] = True
 
                     # Clear screen
                     screen.clear()
